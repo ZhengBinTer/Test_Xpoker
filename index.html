@@ -857,7 +857,7 @@
             console.log('✅ Redeem codes loaded:', Object.keys(weeklyCodeBatches).map(d => `Day ${d}: ${weeklyCodeBatches[d].length} codes`).join(', '));
             
             // Initialize code display after loading
-            initializeRedeemCode();
+            await initializeRedeemCode();
           } catch (error) {
             console.error('❌ Failed to load redeem codes from CSV:', error);
             codesLoaded = false;
@@ -865,7 +865,9 @@
         }
 
         // Get or generate redeem code based on day of week
-        function getRedeemCode() {
+        // New approach: derive a deterministic index from a per-browser clientId and today's date
+        // so different browsers/users map to different codes for the same day.
+        async function getRedeemCode() {
           if (!codesLoaded) {
             console.warn('⚠️ Codes not loaded yet');
             return 'LOADING...';
@@ -873,74 +875,81 @@
 
           const today = new Date();
           let dayOfWeek = today.getDay(); // 0=Sunday, 1=Monday, ..., 6=Saturday
-          
+
           // Convert Sunday from 0 to 7 to match our code format
           if (dayOfWeek === 0) {
             dayOfWeek = 7;
           }
-          
+
           const dateString = today.toDateString();
-          
+
           const storageKey = 'weeklyRedeemCode';
           const dateKey = 'redeemCodeDate';
-          const usedCodesKey = 'usedRedeemCodes';
-          
-          // Check if we have a code for today
+
+          // If we already assigned a code for this browser today, return it
           const savedDate = localStorage.getItem(dateKey);
           const savedCode = localStorage.getItem(storageKey);
-          
           if (savedDate === dateString && savedCode) {
-            // Same day, return existing code
             return savedCode;
           }
-          
-          // New day - reset used codes if date changed
-          if (savedDate !== dateString) {
-            localStorage.removeItem(usedCodesKey);
-          }
-          
+
           // Get today's code batch
           const todaysBatch = weeklyCodeBatches[dayOfWeek];
-          
           if (!todaysBatch || todaysBatch.length === 0) {
             console.error('No codes available for day:', dayOfWeek);
             return 'ERROR';
           }
-          
-          // Get list of used codes today
-          const usedCodes = JSON.parse(localStorage.getItem(usedCodesKey) || '[]');
-          
-          // Filter available codes (not yet used)
-          const availableCodes = todaysBatch.filter(code => !usedCodes.includes(code));
-          
-          if (availableCodes.length === 0) {
-            console.warn('All codes for today have been used, recycling...');
-            // If all codes used, start fresh
-            localStorage.removeItem(usedCodesKey);
-            return getRedeemCode();
+
+          // Ensure the browser has a stable client id
+          let clientId = localStorage.getItem('xpokerClientId');
+          if (!clientId) {
+            if (window.crypto && crypto.randomUUID) {
+              clientId = crypto.randomUUID();
+            } else {
+              clientId = 'cid-' + Math.random().toString(36).slice(2, 10);
+            }
+            localStorage.setItem('xpokerClientId', clientId);
           }
-          
-          // Pick random code from available ones
-          const randomCode = availableCodes[Math.floor(Math.random() * availableCodes.length)];
-          
-          // Save the code and mark it as used
-          localStorage.setItem(storageKey, randomCode);
-          localStorage.setItem(dateKey, dateString);
-          
-          usedCodes.push(randomCode);
-          localStorage.setItem(usedCodesKey, JSON.stringify(usedCodes));
-          
-          return randomCode;
+
+          // Hash clientId + dateString using SHA-256 and map to an index
+          try {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(clientId + '|' + dateString);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = new Uint8Array(hashBuffer);
+
+            // Use first 4 bytes as a 32-bit unsigned integer
+            let num = 0;
+            for (let i = 0; i < 4; i++) {
+              num = (num << 8) | hashArray[i];
+            }
+
+            const index = Math.abs(num) % todaysBatch.length;
+            const chosenCode = todaysBatch[index];
+
+            // Persist chosen code for the day for this browser
+            localStorage.setItem(storageKey, chosenCode);
+            localStorage.setItem(dateKey, dateString);
+
+            return chosenCode;
+          } catch (err) {
+            console.error('Hashing failed, falling back to random selection', err);
+            // Fallback: random pick
+            const randomCode = todaysBatch[Math.floor(Math.random() * todaysBatch.length)];
+            localStorage.setItem(storageKey, randomCode);
+            localStorage.setItem(dateKey, dateString);
+            return randomCode;
+          }
         }
 
-        // Initialize redeem code display
-        function initializeRedeemCode() {
-          const currentCode = getRedeemCode();
+        // Initialize redeem code display (async because code selection is async)
+        async function initializeRedeemCode() {
+          const currentCode = await getRedeemCode();
           const codeDisplay = document.getElementById('redeemCodeDisplay');
           if (codeDisplay) {
             codeDisplay.textContent = currentCode;
           }
-          
+
           // Initialize scratch card
           initScratchCard(currentCode);
         }
