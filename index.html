@@ -607,7 +607,7 @@
           <!-- Copy Button -->
           <div class="text-center mt-6">
             <button id="copyCodeBtn" class="copy-code-btn">
-              <span id="copyBtnText">复制代码</span>
+              <span id="copyBtnText">複製代碼</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="inline-block ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
@@ -619,7 +619,7 @@
         <div class="instructions-panel">
           <div class="glass-card">
             <h3 class="text-2xl md:text-3xl font-bold mb-8 text-center neon-text-subtle">
-              如何兑换？
+              如何兌換？
             </h3>
 
             <div class="space-y-6">
@@ -631,8 +631,8 @@
                   </svg>
                 </div>
                 <div class="step-content">
-                  <h4 class="text-xl font-semibold text-white mb-1">刮开兑换码</h4>
-                  <p class="text-gray-400">刮开上方遮罩获取兑换码</p>
+                  <h4 class="text-xl font-semibold text-white mb-1">刮開兌換碼</h4>
+                  <p class="text-gray-400">從上方遮罩刮開並取得兌換碼</p>
                 </div>
               </div>
 
@@ -644,8 +644,8 @@
                   </svg>
                 </div>
                 <div class="step-content">
-                  <h4 class="text-xl font-semibold text-white mb-1">联系客服</h4>
-                  <p class="text-gray-400">将兑换码提供给客服人员</p>
+                  <h4 class="text-xl font-semibold text-white mb-1">聯絡客服</h4>
+                  <p class="text-gray-400">將兌換碼提供給客服人員</p>
                 </div>
               </div>
 
@@ -657,8 +657,8 @@
                   </svg>
                 </div>
                 <div class="step-content">
-                  <h4 class="text-xl font-semibold text-white mb-1">领取奖励</h4>
-                  <p class="text-gray-400">确认后即可领取奖励</p>
+                  <h4 class="text-xl font-semibold text-white mb-1">領取獎勵</h4>
+                  <p class="text-gray-400">確認後即可領取獎勵</p>
                 </div>
               </div>
             </div>
@@ -1036,7 +1036,7 @@
             
             ctx.font = '16px Arial';
             ctx.fillStyle = '#666';
-            ctx.fillText('👆 滑动刮开', canvas.width / 2, canvas.height / 2 + 25);
+            ctx.fillText('👆 滑動刮開', canvas.width / 2, canvas.height / 2 + 25);
           }
 
           // Scratch function
@@ -1125,7 +1125,7 @@
               try {
                 await navigator.clipboard.writeText(currentCode);
                 const originalText = copyBtnText.textContent;
-                copyBtnText.textContent = '✓ 已复制！';
+                copyBtnText.textContent = '✓ 已複製！';
                 copyBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #22d3ee 100%)';
                 
                 setTimeout(() => {
@@ -1134,9 +1134,9 @@
                 }, 2000);
               } catch (err) {
                 console.error('Failed to copy:', err);
-                copyBtnText.textContent = '复制失败';
+                copyBtnText.textContent = '複製失敗';
                 setTimeout(() => {
-                  copyBtnText.textContent = '复制代码';
+                  copyBtnText.textContent = '複製代碼';
                 }, 2000);
               }
             });
