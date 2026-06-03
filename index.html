@@ -165,6 +165,40 @@
       });
     </script>
 
+    <!-- Activity window: auto-hide daily redeem section outside specified interval -->
+    <script>
+      (function() {
+        // Activity window (local time)
+        const start = new Date(2026, 5, 3, 0, 0, 0); // months are 0-based: 5 = June
+        const end = new Date(2026, 5, 4, 11, 59, 0); // until 2026-06-04 11:59:00
+
+        function updateRedeemVisibility() {
+          const section = document.getElementById('daily-redeem-section');
+          if (!section) return;
+          const now = new Date();
+          if (now >= start && now <= end) {
+            section.style.display = '';
+          } else {
+            section.style.display = 'none';
+          }
+        }
+
+        // Initial check
+        document.addEventListener('DOMContentLoaded', updateRedeemVisibility);
+
+        // If currently before end, schedule auto-hide at end time
+        const now = new Date();
+        if (now < end) {
+          const msUntilEnd = end.getTime() - now.getTime();
+          // setTimeout max is implementation dependent; clamp to 24 days safe value
+          setTimeout(() => {
+            const section = document.getElementById('daily-redeem-section');
+            if (section) section.style.display = 'none';
+          }, msUntilEnd);
+        }
+      })();
+    </script>
+
     <!-- Smooth Scroll with Optimal Positioning for Navigation Links -->
     <script>
       document.addEventListener('DOMContentLoaded', function () {
