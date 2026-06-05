@@ -168,9 +168,9 @@
     <!-- Activity window: auto-hide daily redeem section outside specified interval -->
     <script>
       (function() {
-        // Activity window (local time)
-        const start = new Date(2026, 5, 3, 0, 0, 0); // months are 0-based: 5 = June
-        const end = new Date(2026, 5, 4, 11, 59, 0); // until 2026-06-04 11:59:00
+  // Activity window (local time)
+  const start = new Date(2026, 5, 6, 0, 0, 0); // 2026-06-06 00:00:00 (months are 0-based)
+  const end = new Date(2026, 5, 7, 23, 59, 59); // 2026-06-07 23:59:59
 
         function updateRedeemVisibility() {
           const section = document.getElementById('daily-redeem-section');
